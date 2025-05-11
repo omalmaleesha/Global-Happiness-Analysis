@@ -15,17 +15,20 @@ os.makedirs('../models', exist_ok=True)
 data_path = '../data/2019.csv'
 df = pd.read_csv(data_path)
 
-# Data Cleaning
-# Rename columns for consistency and easier access
-df.columns = [col.lower().replace(' ', '_') for col in df.columns]
+# Rename columns
+df.columns = [col.strip().lower().replace(' ', '_') for col in df.columns]
 
 # Handle missing values by dropping rows with any missing data
 df.dropna(inplace=True)
 
+if 'ladder_score' not in df.columns:
+    print("Column 'ladder_score' not found! Available columns:", df.columns.tolist())
+else:
+    print("'ladder_score' found, proceeding with conversion.")
+
 # Ensure appropriate data types (example: convert numeric columns if needed)
-numeric_columns = ['ladder_score', 'logged_gdp_per_capita', 'social_support',
-                  'healthy_life_expectancy', 'freedom_to_make_life_choices',
-                  'generosity', 'perceptions_of_corruption']
+numeric_columns = ['score', 'gdp_per_capita', 'social_support', 'healthy_life_expectancy',
+                   'freedom_to_make_life_choices', 'generosity', 'perceptions_of_corruption']
 for col in numeric_columns:
     df[col] = pd.to_numeric(df[col], errors='coerce')
 
@@ -43,10 +46,11 @@ plt.savefig('../visualizations/correlation_matrix.png')
 plt.close()
 
 # Scatter plot: GDP vs Happiness Score
+# Scatter plot: GDP vs Happiness Score
 plt.figure(figsize=(8, 6))
-sns.scatterplot(x='logged_gdp_per_capita', y='ladder_score', data=df)
-plt.title('Logged GDP per Capita vs Happiness Score')
-plt.xlabel('Logged GDP per Capita')
+sns.scatterplot(x='gdp_per_capita', y='score', data=df)
+plt.title('GDP per Capita vs Happiness Score')
+plt.xlabel('GDP per Capita')
 plt.ylabel('Happiness Score')
 plt.savefig('../visualizations/gdp_vs_happiness.png')
 plt.close()
@@ -67,10 +71,9 @@ else:
 
 # Advanced Analysis: Feature Importance with Linear Regression
 # Prepare data for modeling
-features = ['logged_gdp_per_capita', 'social_support', 'healthy_life_expectancy',
-           'freedom_to_make_life_choices', 'generosity', 'perceptions_of_corruption']
+features = ['gdp_per_capita', 'social_support', 'healthy_life_expectancy', 'freedom_to_make_life_choices', 'generosity', 'perceptions_of_corruption']
 X = df[features]
-y = df['ladder_score']
+y = df['score']
 
 # Split data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
